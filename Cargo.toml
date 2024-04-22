@@ -1,0 +1,13 @@
+[package]
+name = "address_generator"
+version = "0.1.0"
+edition = "2018"
+
+[dependencies]
+bitcoin = "0.28.1"
+rand = "0.8"
+
+
+[[bin]]
+name = "wallet"
+path = "src/main.rs"
