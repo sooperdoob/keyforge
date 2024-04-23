@@ -25,8 +25,16 @@ fn main() {
     // Convert the byte slice into a bitcoin::PublicKey instance.
     let pubkey = bitcoin::PublicKey::from_slice(&pubkey_bytes).expect("Failed to create PublicKey");
 
+    let public_key_uncompressed = bitcoin::PublicKey {
+        compressed: false,
+        inner: public_key,
+    };
+
     // Generate Legacy P2PKH address.
     let legacy_address = Address::p2pkh(&pubkey, Network::Bitcoin);
+
+    // Generate Legacy P2PKH uncompressed address.
+    let legacy_address_uncompressed = Address::p2pkh(&public_key_uncompressed, Network::Bitcoin);
 
     // Generate SegWit Bech32 address.
     let segwit_bech32_address = Address::p2wpkh(&pubkey, Network::Bitcoin).unwrap();
@@ -37,8 +45,10 @@ fn main() {
     // Convert the private key to WIF format.
     let wif_key = private_key.to_wif();
 
-    println!("Legacy P2PKH: {}", legacy_address);
+    println!("Legacy P2PKH (Compressed): {}", legacy_address);
+    println!("Legacy P2PKH (Uncompressed): {}", legacy_address_uncompressed); 
     println!("SegWit P2WPKH: {}", segwit_bech32_address);
     println!("SegWit P2SH: {}", segwit_base58_address);
+
     println!("WIF key: {}", wif_key);
 }
