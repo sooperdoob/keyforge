@@ -9,5 +9,5 @@ rand = "0.8"
 
 
 [[bin]]
-name = "wallet"
+name = "keyforge"
 path = "src/main.rs"
