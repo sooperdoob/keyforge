@@ -41,7 +41,14 @@ fn main() {
     let script_pubkey = compressed_segwit_bech32_address.script_pubkey();
 
     // Manually construct the script code for P2WPKH
-    let script_code = Script::new_p2pkh(&compressed_public_key.pubkey_hash());
+    let script_code = Script::new_p2pkh(&uncompressed_public_key.pubkey_hash());
+
+    // Generate the P2WSH address
+    // Needs debugged
+    let p2wsh_address = Address::p2wsh(&script_code, Network::Bitcoin);
+
+    // Print the P2WSH address
+    println!("P2WSH Address: {}", p2wsh_address);
 
     // Print the script code
     println!("Script Code: {:?}", script_code);
