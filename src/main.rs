@@ -1,7 +1,6 @@
-use bitcoin::{Address, Network};
-use bitcoin::secp256k1::{Secp256k1, SecretKey, PublicKey as BitcoinPublicKey};
-use rand::thread_rng;
-use rand::Rng;
+use bitcoin::{Address, Network, PrivateKey, PublicKey, Script};
+use bitcoin::secp256k1::{Secp256k1, SecretKey};
+use rand::{thread_rng, Rng};
 
 fn main() {
     // Generate random secret key.
@@ -10,45 +9,56 @@ fn main() {
     let secret_key = SecretKey::from_slice(&mut rng.gen::<[u8; 32]>()).expect("Failed to generate secret key");
 
     // Convert the secret key to its corresponding private key structure.
-    let private_key = bitcoin::PrivateKey {
+    let private_key = PrivateKey {
         compressed: true,
         network: Network::Bitcoin,
         inner: secret_key,
     };
 
-    // Derive public key from the secret key.
-    let public_key = BitcoinPublicKey::from_secret_key(&secp, &private_key.inner);
+    // Create compressed PublicKey
+    let compressed_public_key = PublicKey::from_private_key(&secp, &private_key);
 
-    // Serialize the public key.
-    let pubkey_bytes = public_key.serialize();
-
-    // Convert the byte slice into a bitcoin::PublicKey instance.
-    let pubkey = bitcoin::PublicKey::from_slice(&pubkey_bytes).expect("Failed to create PublicKey");
-
-    let public_key_uncompressed = bitcoin::PublicKey {
+    // Create uncompressed PublicKey
+    let uncompressed_private_key = PrivateKey {
         compressed: false,
-        inner: public_key,
+        network: Network::Bitcoin,
+        inner: private_key.inner,
     };
 
-    // Generate Legacy P2PKH address.
-    let legacy_address = Address::p2pkh(&pubkey, Network::Bitcoin);
+    let uncompressed_public_key = PublicKey::from_private_key(&secp, &uncompressed_private_key);
 
-    // Generate Legacy P2PKH uncompressed address.
-    let legacy_address_uncompressed = Address::p2pkh(&public_key_uncompressed, Network::Bitcoin);
+    // Generate Legacy P2PKH addresses.
+    let compressed_legacy_address = Address::p2pkh(&compressed_public_key, Network::Bitcoin);
+    let uncompressed_legacy_address = Address::p2pkh(&uncompressed_public_key, Network::Bitcoin);
 
     // Generate SegWit Bech32 address.
-    let segwit_bech32_address = Address::p2wpkh(&pubkey, Network::Bitcoin).unwrap();
+    let compressed_segwit_bech32_address = Address::p2wpkh(&compressed_public_key, Network::Bitcoin).unwrap();
 
     // Generate SegWit Base58 address.
-    let segwit_base58_address = Address::p2shwpkh(&pubkey, Network::Bitcoin).unwrap();
+    let compressed_segwit_base58_address = Address::p2shwpkh(&compressed_public_key, Network::Bitcoin).unwrap();
 
-    // Convert the private key to WIF format.
-    let wif_key = private_key.to_wif();
 
-    println!("Legacy P2PKH (Compressed): {}", legacy_address);
-    println!("Legacy P2PKH (Uncompressed): {}", legacy_address_uncompressed); 
-    println!("SegWit P2WPKH: {}", segwit_bech32_address);
-    println!("SegWit P2SH: {}", segwit_base58_address);
+    // Get the script pubkey from the SegWit address
+    //let script_pubkey = compressed_segwit_bech32_address.script_pubkey();
 
-    println!("WIF key: {}", wif_key);
+    // Now, we pass the script pubkey into p2wpkh_script_code
+    //let script_code = Script::p2wpkh_script_code();
+
+    // Print the script code
+    //match script_code {
+    //    Some(sc) => println!("Script Code: {:?}", sc),
+    //    None => println!("Script Code could not be generated."),
+    //}
+
+    // Print the addresses
+    println!("Compressed P2PKH: {}", compressed_legacy_address);
+    println!("Uncompressed P2PKH: {}", uncompressed_legacy_address);
+
+    println!("SegWit P2WPKH: {}", compressed_segwit_bech32_address);
+
+    println!("SegWit P2SHWPKH: {}", compressed_segwit_base58_address);
+
+    // Print the Wallet Import Format (WIF) of the private key
+    println!("Compressed WIF: {}", private_key.to_wif());
+    println!("Uncompressed WIF: {}", uncompressed_private_key.to_wif());
 }
