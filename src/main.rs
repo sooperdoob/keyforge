@@ -48,7 +48,7 @@ fn main() {
     let p2wsh_address = Address::p2wsh(&script_code, Network::Bitcoin);
 
     // Print the P2WSH address
-    println!("P2WSH Address: {}", p2wsh_address);
+    println!("P2WSH Address (WIP): {}", p2wsh_address);
 
     // Print the script code
     println!("Script Code: {:?}", script_code);
