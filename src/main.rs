@@ -37,25 +37,19 @@ fn main() {
     // Generate SegWit Base58 address.
     let compressed_segwit_base58_address = Address::p2shwpkh(&compressed_public_key, Network::Bitcoin).unwrap();
 
-
     // Get the script pubkey from the SegWit address
-    //let script_pubkey = compressed_segwit_bech32_address.script_pubkey();
+    let script_pubkey = compressed_segwit_bech32_address.script_pubkey();
 
-    // Now, we pass the script pubkey into p2wpkh_script_code
-    //let script_code = Script::p2wpkh_script_code();
+    // Manually construct the script code for P2WPKH
+    let script_code = Script::new_p2pkh(&compressed_public_key.pubkey_hash());
 
     // Print the script code
-    //match script_code {
-    //    Some(sc) => println!("Script Code: {:?}", sc),
-    //    None => println!("Script Code could not be generated."),
-    //}
+    println!("Script Code: {:?}", script_code);
 
     // Print the addresses
     println!("Compressed P2PKH: {}", compressed_legacy_address);
     println!("Uncompressed P2PKH: {}", uncompressed_legacy_address);
-
     println!("SegWit P2WPKH: {}", compressed_segwit_bech32_address);
-
     println!("SegWit P2SHWPKH: {}", compressed_segwit_base58_address);
 
     // Print the Wallet Import Format (WIF) of the private key
